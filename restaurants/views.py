@@ -7,8 +7,10 @@ from django.db.models import Q
 
 def restaurant_favorite(request, restaurant_id):
     restaurant_obj = Restaurant.objects.get(id=restaurant_id)
+    if request.user.is_anonymous:
+        return redirect('signin')
+    
     favorite, created = FavoriteRestaurant.objects.get_or_create(user=request.user, restaurant=restaurant_obj)
-
     if created:
         action="favorite"
     else:
@@ -72,7 +74,9 @@ def restaurant_list(request):
             Q(owner__username__icontains=query)
         ).distinct()
 
-    favorite_list = request.user.favoriterestaurant_set.all().values_list('restaurant', flat=True)
+    favorite_list = []
+    if request.user.is_authenticated:
+        favorite_list = request.user.favoriterestaurant_set.all().values_list('restaurant', flat=True)
 
     context = {
        "restaurants": restaurants,
@@ -81,6 +85,8 @@ def restaurant_list(request):
     return render(request, 'list.html', context)
 
 def favorite_restaurants(request):
+    if request.user.is_anonymous:
+        return redirect('signin')
     favorite_list = request.user.favoriterestaurant_set.all().values_list('restaurant', flat=True)
     restaurants = Restaurant.objects.filter(id__in=favorite_list)
     context = {

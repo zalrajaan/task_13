@@ -1,9 +1,9 @@
 from django.test import TestCase, RequestFactory
 from django.urls import reverse
 from django.contrib.auth.models import User
-from restaurants.models import Restaurant, Item
+from restaurants.models import Restaurant, Item, FavoriteRestaurant
 from restaurants.forms import RestaurantForm, ItemForm, SignupForm, SigninForm
-from restaurants.views import restaurant_create, restaurant_delete, restaurant_update, item_create
+from restaurants.views import restaurant_create, restaurant_delete, restaurant_update, item_create, restaurant_favorite, favorite_restaurants
 from django.http import response
 
 class ModelTestCase(TestCase):
@@ -29,6 +29,10 @@ class ModelTestCase(TestCase):
             description="The restaurant's special.",
             price=1.750,
             restaurant=restaurant,
+            )
+        favorite = FavoriteRestaurant.objects.create(
+            user=self.user,
+            restaurant=restaurant
             )
     
 
@@ -148,6 +152,23 @@ class ViewTestCase(TestCase):
             "password": "somepassword",
             }
 
+        self.favorite_restaurant_1_1 = FavoriteRestaurant.objects.create(
+                user=self.user,
+                restaurant=self.restaurant_1
+            )
+        self.favorite_restaurant_1_2 = FavoriteRestaurant.objects.create(
+                user=self.user2,
+                restaurant=self.restaurant_1
+            )
+        self.favorite_restaurant_2_1 = FavoriteRestaurant.objects.create(
+                user=self.user,
+                restaurant=self.restaurant_2
+            )
+        self.favorite_restaurant_2_2 = FavoriteRestaurant.objects.create(
+                user=self.user2,
+                restaurant=self.restaurant_2
+            )
+
     def test_restaurant_list_view(self):
         list_url = reverse("restaurant-list")
         response = self.client.get(list_url)
@@ -251,6 +272,27 @@ class ViewTestCase(TestCase):
         delete_url = reverse("restaurant-delete", kwargs={"restaurant_id":self.restaurant_2.id})
         response = self.client.get(delete_url)
         self.assertEqual(response.status_code, 302)
+
+    def test_restaurant_favorite_view(self):
+        favorite_url = reverse("restaurant-favorite", kwargs={"restaurant_id":self.restaurant_1.id})
+        request = self.factory.get(favorite_url)
+        request.user = self.user3
+        response = restaurant_favorite(request, restaurant_id=self.restaurant_1.id)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(FavoriteRestaurant.objects.filter(restaurant=self.restaurant_1, user=self.user3).exists())
+
+    def test_favorite_restaurants_view(self):
+        favorite_url = reverse("favorite-restaurant")
+        response = self.client.get(favorite_url)
+        self.assertEqual(response.status_code, 302)
+
+        request = self.factory.get(favorite_url)
+        request.user = self.user
+        response = favorite_restaurants(request)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.restaurant_1.logo.url)
+        for restaurant in FavoriteRestaurant.objects.filter(user=self.user):
+            self.assertContains(response, restaurant.restaurant.name)
 
     def test_signup_view(self):
         signup_url = reverse("signup")
