@@ -1,8 +1,24 @@
 from django.shortcuts import render, redirect
-from .models import Restaurant, Item
+from .models import Restaurant, Item, FavoriteRestaurant
 from .forms import RestaurantForm, ItemForm, SignupForm, SigninForm
 from django.contrib.auth import login, authenticate, logout
+from django.http import JsonResponse
 from django.db.models import Q
+
+def restaurant_favorite(request, restaurant_id):
+    restaurant_obj = Restaurant.objects.get(id=restaurant_id)
+    favorite, created = FavoriteRestaurant.objects.get_or_create(user=request.user, restaurant=restaurant_obj)
+
+    if created:
+        action="favorite"
+    else:
+        favorite.delete()
+        action="unfavorite"
+
+    response = {
+        "action": action,
+    }
+    return JsonResponse(response, safe=False)
 
 def no_access(request):
     return render(request, 'no_access.html')
@@ -50,21 +66,27 @@ def restaurant_list(request):
     restaurants = Restaurant.objects.all()
     query = request.GET.get('q')
     if query:
-        # Not Bonus. Querying through a single field.
-        # restaurants = restaurants.filter(name__icontains=query)
-        
-        # Bonus. Querying through multiple fields.
         restaurants = restaurants.filter(
             Q(name__icontains=query)|
             Q(description__icontains=query)|
             Q(owner__username__icontains=query)
         ).distinct()
-        #############
+
+    favorite_list = request.user.favoriterestaurant_set.all().values_list('restaurant', flat=True)
+
     context = {
-       "restaurants": restaurants
+       "restaurants": restaurants,
+       "favorite_list": favorite_list
     }
     return render(request, 'list.html', context)
 
+def favorite_restaurants(request):
+    favorite_list = request.user.favoriterestaurant_set.all().values_list('restaurant', flat=True)
+    restaurants = Restaurant.objects.filter(id__in=favorite_list)
+    context = {
+        "restaurants": restaurants,
+    }
+    return render(request, 'favorite_restaurants.html', context)
 
 def restaurant_detail(request, restaurant_id):
     restaurant = Restaurant.objects.get(id=restaurant_id)

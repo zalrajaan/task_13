@@ -26,7 +26,9 @@
                 {{restaurant.description|truncatechars:25}}
               </div>
               <div class="float-right">
-                <button class="btn btn-outline-dark"><i class="fas fa-star"></i></button>
+                  <i id="star-{{restaurant.id}}"
+                    class="fas fa-star {% if restaurant.id in favorite_list %}text-warning{% endif %}"
+                    onclick="favorite_me({{restaurant.id}})"></i>
               </div>
             </p>
           </div>
@@ -39,5 +41,27 @@
     </div>
     {% endfor %}
 </div>
+
+<script type="text/javascript">
+    function favorite_me(id) {
+        $.ajax(
+            {
+                type:'GET',
+                url: '/restaurants/'+id+"/favorite/",
+                error: function(){
+                    console.log('error');
+                },
+                success: function(data){
+                    let star_id = "#star-"+id;
+                    if(data.action==="favorite"){
+                        $(star_id).addClass("text-warning");
+                    }else{
+                        $(star_id).removeClass("text-warning")
+                    }
+                },
+            }
+        );
+    }
+</script>
 {% endblock content %}
 

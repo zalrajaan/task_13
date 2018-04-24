@@ -23,11 +23,13 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     
     path('restaurants/list/',views.restaurant_list ,name='restaurant-list'),
+    path('restaurants/favorite/',views.favorite_restaurants ,name='restaurant-favorite'),
     path('restaurants/<int:restaurant_id>/detail/',views.restaurant_detail ,name='restaurant-detail'),
 
     path('restaurants/create/',views.restaurant_create ,name='restaurant-create'),
     path('restaurants/<int:restaurant_id>/update/',views.restaurant_update ,name='restaurant-update'),
     path('restaurants/<int:restaurant_id>/delete/',views.restaurant_delete ,name='restaurant-delete'),
+    path('restaurants/<int:restaurant_id>/favorite/',views.restaurant_favorite ,name='restaurant-favorite'),
 
     path('restaurants/<int:restaurant_id>/item/add/',views.item_create ,name='item-create'),
 
