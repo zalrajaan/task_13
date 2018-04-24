@@ -21,7 +21,14 @@
           {% endif %}
           <div class="card-body">
             <h5 class="card-title">{{restaurant.name}}</h5>
-            <p class="card-text">{{restaurant.description|truncatechars:25}}</p>
+            <p class="card-text">
+              <div class="float-left">
+                {{restaurant.description|truncatechars:25}}
+              </div>
+              <div class="float-right">
+                <button class="btn btn-outline-dark"><i class="fas fa-star"></i></button>
+              </div>
+            </p>
           </div>
           <ul class="list-group list-group-flush">
             <li class="list-group-item text-center">
