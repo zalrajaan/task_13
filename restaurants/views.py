@@ -4,6 +4,18 @@ from .forms import RestaurantForm, ItemForm, SignupForm, SigninForm
 from django.contrib.auth import login, authenticate, logout
 from django.db.models import Q
 
+# This view will be used to favorite a restaurant
+def restaurant_favorite(request, restaurant_id):
+    
+    return
+
+
+# This view will be used to display only restaurants a user has favorited
+def favorite_restaurants(request):
+    
+    return
+
+
 def no_access(request):
     return render(request, 'no_access.html')
 

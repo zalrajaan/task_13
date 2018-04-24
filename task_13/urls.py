@@ -36,6 +36,9 @@ urlpatterns = [
     path('signout/',views.signout ,name='signout'),
 
     path('no-access/',views.no_access ,name='no-access'),
+
+    path('restaurants/favorite/',views.favorite_restaurants ,name='favorite-restaurant'),
+    path('restaurants/<int:restaurant_id>/favorite/',views.restaurant_favorite ,name='restaurant-favorite'),
 ]
 
 if settings.DEBUG:
