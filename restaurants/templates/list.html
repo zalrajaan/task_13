@@ -26,11 +26,43 @@
           <ul class="list-group list-group-flush">
             <li class="list-group-item text-center">
                 <a href="{% url 'restaurant-detail' restaurant.id %}" class="btn btn-outline-dark">View</a>
+                <button class="btn btn-outline-dark" 
+                onclick=" anything({{restaurant.id}})">
+                <i id="star-{{restaurant.id}}" class="fas fa-star {% if restaurant in my_list %} text-warning 
+                {%endif%} "></i></span>
+                  </button> 
             </li>
           </ul>
         </div>
     </div>
     {% endfor %}
+   
+
 </div>
+<script>
+  function anything(restaurant_id) {
+    $.ajax(
+        {
+            type:'GET',
+            url: "/restaurants/"+ restaurant_id+"/favorite/",
+            error: function(){
+                console.log('error');
+            },
+            success: function(data){ 
+                console.log(data);
+                let my_id = "star-"+ restaurant_id
+                if(data.action === "yay")
+                {
+                  $(my_id).addClass("text-warning")
+                else{
+                  $(my_id).removeClass("text-warning")
+                }
+
+                }
+            },
+        }
+    );
+}
+</script>
 {% endblock content %}
 
