@@ -12,7 +12,7 @@ def restaurant_favorite(request, restaurant_id):
     if created:
         action = "yay" #can be anything
     else:
-        action = "nay"#can be anything
+        action = "nay" #can be anything
         fav.delete()
 
     respose = {
